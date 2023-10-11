@@ -12,7 +12,7 @@ function init_img()
     end
     deli(data, 1)
 
-    -- draw pallete
+    -- draw palette
     local dpal = {}
     local dpal_header = headers[1]
     for p = 1, #dpal_header do
