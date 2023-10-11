@@ -27,11 +27,23 @@ function init_img()
       add(vcol, (c1 - 0x30) * 16 + (c2 - 0x30))
     end
 
+    local matrix = {}
+    for y, row in pairs(data) do
+      local x = 0
+      local row_data = {}
+      for i = 1, #row, 2 do
+        local p, len = ord(row, i, 2)
+        add(row_data, {['p'] = p - 0x30, ['x1'] = x, ['x2'] = x + len - 0x30})
+        x += len - 0x30
+      end
+      add(matrix, row_data)
+    end
+
     -- ready to draw
     pen_data[i] = {
       ['dpal'] = dpal,
       ['vcol'] = vcol,
-      ['data'] = data,
+      ['matrix'] = matrix,
     }
   end
 end
@@ -43,20 +55,15 @@ function draw_img(name)
     pal(p - 1, img.dpal[p], 1);
   end
 
-  for y, line in pairs(img.data) do
-    local x = 0
-    for i = 1, #line, 2 do
-      local p, len = ord(line, i, 2)
-      p -= 0x30
-      len -= 0x30
-      if (p < 16) then
-        rectfill(x, y, x + len, y, p)
+  for y, row_data in pairs(img.matrix) do
+    for row in all(row_data) do
+      if (row.p < 16) then
+        rectfill(row.x1, y, row.x2, y, row.p)
       else
         fillp(0b1010010110100101)
-        rectfill(x, y, x + len, y, img.vcol[p - 15])
+        rectfill(row.x1, y, row.x2, y, img.vcol[row.p - 15])
         fillp(0)
       end
-      x += len
     end
   end
 end
