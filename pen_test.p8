@@ -139,8 +139,8 @@ function _draw()
   local x=0
   for i=1,#line,2 do
    local p,len=ord(line,i,2)
-   p -= 0x30
-   len -= 0x30
+   p-=0x30
+   len-=0x30
    rectfill(x,y,x+len,y,p)
    x+=len
   end
