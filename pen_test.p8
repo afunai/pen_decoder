@@ -111,7 +111,7 @@ function _draw()
 
  data=split(str,'\n',false)
  headers={}
- while data[1]!='' do
+ while data[1]!='---' do
   add(headers,data[1])
   deli(data,1)
  end
