@@ -106,9 +106,23 @@ str = [[045679=?ぬのはひふへほみ
 
 function _draw()
  cls()
- for y,line in pairs(
-  split(str,'\n',false)
- ) do
+
+ data=split(str,'\n',false)
+ headers={}
+ while data[1]!='' do
+  add(headers,data[1])
+  deli(data,1)
+ end
+
+ palletes=headers[1]
+ for p=1,#palletes do
+  pal(
+   p-1,
+   ord(palletes,p)-0x30,
+   1);
+ end
+
+ for y,line in pairs(data) do
   local x=0
   for i=1,#line,2 do
    local p,len=ord(line,i,2)
