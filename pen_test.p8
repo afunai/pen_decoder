@@ -115,13 +115,20 @@ function _draw()
   add(headers,data[1])
   deli(data,1)
  end
+ deli(data,1)
 
- palletes=headers[1]
- for p=1,#palletes do
-  pal(
-   p-1,
-   ord(palletes,p)-0x30,
-   1);
+ dpal=headers[1]
+ for p=1,#dpal do
+  pal(p-1,ord(dpal,p)-0x30,1);
+ end
+
+ vcolor={}
+ vpal=headers[2]
+ for i=1,#vpal,2 do
+  local c1,c2=ord(vpal,i,2)
+  add(
+   vcolor,
+   (c1-0x30)*16 + (c2-0x30))
  end
 
  for y,line in pairs(data) do
@@ -130,7 +137,14 @@ function _draw()
    local p,len=ord(line,i,2)
    p-=0x30
    len-=0x30
-   rectfill(x,y,x+len,y,p)
+   if (p < 16) then
+    rectfill(x,y,x+len,y,p)
+   else
+    fillp(0b1010010110100101)
+    rectfill(
+     x,y,x+len,y,vcolor[p-15])
+    fillp(0)
+   end
    x+=len
   end
  end
