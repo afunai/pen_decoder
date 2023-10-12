@@ -32,7 +32,7 @@ function init_img()
       local x = 0
       local row_data = {}
       for i = 1, #row, 2 do
-        local p, len = ord(row, i, 2)
+        local len, p = ord(row, i, 2)
         add(row_data, {['p'] = p - 0x30, ['x1'] = x, ['x2'] = x + len - 0x30})
         x += len - 0x30
       end
