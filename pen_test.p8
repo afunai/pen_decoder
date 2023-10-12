@@ -12,6 +12,6 @@ end
 
 function _draw()
  cls()
- draw_img(1)
+ draw_img('test')
 end
 
