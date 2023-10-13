@@ -73,10 +73,10 @@ function draw_img(name, x, y, ...)
 
   args = {...}
   -- clipping coords (begins from 0)
-  local cx1 = args[1] or max(0, -x)
-  local cy1 = args[2] or max(0, -y)
-  local cx2 = args[3] or 127 - x -- TODO: image width
-  local cy2 = args[4] or min(#img.matrix - 1, 127 - y)
+  local cx1 = max(0, max(args[1], -x))
+  local cy1 = max(0, max(args[2], -y))
+  local cx2 = min(args[3] or 127, 127 - x)
+  local cy2 = min(#img.matrix - 1, min(args[4] or 127, 127 - y))
   print(cx1..','..cy1..'-'..cx2..','..cy2,2,2)
 
   for p = 1, #img.dpal do
