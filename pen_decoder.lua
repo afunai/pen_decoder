@@ -68,24 +68,24 @@ function init_img()
   end
 end
 
-function draw_img(name)
+function draw_img(name, x, y)
   local img = pen_data[name]
 
   for p = 1, #img.dpal do
     pal(p - 1, img.dpal[p], 1);
   end
 
-  for y, row_data in pairs(img.matrix) do
+  for y1, row_data in pairs(img.matrix) do
     for row in all(row_data) do
       if (row.p < 16) then
-        rectfill(row.x1, y, row.x2, y, row.p)
+        rectfill(x + row.x1, y + y1, x + row.x2, y + y1, row.p)
       else
         if (img.vcol[row.p - 15] > 0xff) then
           fillp(0b1110101111101011)
         else
           fillp(0b1010010110100101)
         end
-        rectfill(row.x1, y, row.x2, y, img.vcol[row.p - 15])
+        rectfill(x + row.x1, y + y1, x + row.x2, y + y1, img.vcol[row.p - 15])
         fillp(0)
       end
     end
