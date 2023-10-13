@@ -80,7 +80,11 @@ function draw_img(name)
       if (row.p < 16) then
         rectfill(row.x1, y, row.x2, y, row.p)
       else
-        fillp(0b1010010110100101)
+        if (img.vcol[row.p - 15] > 0xff) then
+          fillp(0b1110101111101011)
+        else
+          fillp(0b1010010110100101)
+        end
         rectfill(row.x1, y, row.x2, y, img.vcol[row.p - 15])
         fillp(0)
       end
