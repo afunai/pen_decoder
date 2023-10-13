@@ -68,14 +68,23 @@ function init_img()
   end
 end
 
-function draw_img(name, x, y)
+function draw_img(name, x, y, ...)
   local img = pen_data[name]
+
+  args = {...}
+  -- clipping coords (begins from 0)
+  local cx1 = args[1] or max(0, -x)
+  local cy1 = args[2] or max(0, -y)
+  local cx2 = args[3] or 127 - x -- TODO: image width
+  local cy2 = args[4] or min(#img.matrix - 1, 127 - y)
+  print(cx1..','..cy1..'-'..cx2..','..cy2,2,2)
 
   for p = 1, #img.dpal do
     pal(p - 1, img.dpal[p], 1);
   end
 
-  for y1, row_data in pairs(img.matrix) do
+  for y1 = cy1, cy2 do
+    local row_data = img.matrix[y1 + 1]
     for row in all(row_data) do
       if (row.p < 16) then
         rectfill(x + row.x1, y + y1, x + row.x2, y + y1, row.p)
