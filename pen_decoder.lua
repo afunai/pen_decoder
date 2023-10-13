@@ -29,27 +29,34 @@ function init_img()
 
     local matrix = {}
     for row in all(data) do
-      local x = 0
-      local i = 1
-      local row_data = {}
-      while (i < #row) do
-        local len = ord(row, i) - 0x30
-        if (len < 0) then
-          -- orphan pixels
-          for j = i + 1, i - len do
-            local p = ord(row, j) - 0x30
-            add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + 1})
-            x += 1
-          end
-          i += 1 - len
-        else
-          local p = ord(row, i + 1) - 0x30
-          add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len})
-          x += len
-          i += 2
+      if (sub(row, 1, 1) == '*') then
+        -- ditto rows
+        for i = 1, tonum(sub(row, 2)) do
+          add(matrix, matrix[#matrix])
         end
+      else
+        local x = 0
+        local i = 1
+        local row_data = {}
+        while (i < #row) do
+          local len = ord(row, i) - 0x30
+          if (len < 0) then
+            -- orphan pixels
+            for j = i + 1, i - len do
+              local p = ord(row, j) - 0x30
+              add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + 1})
+              x += 1
+            end
+            i += 1 - len
+          else
+            local p = ord(row, i + 1) - 0x30
+            add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len})
+            x += len
+            i += 2
+          end
+        end
+        add(matrix, row_data)
       end
-      add(matrix, row_data)
     end
 
     -- ready to draw
