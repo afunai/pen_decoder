@@ -1,7 +1,7 @@
 pen_data = {}
 
 function init_img()
-  for i, str in pairs(pen_data) do
+  for name, str in pairs(pen_data) do
     local data = split(str, '\n', false)
 
     -- split headers and data
@@ -60,7 +60,7 @@ function init_img()
     end
 
     -- ready to draw
-    pen_data[i] = {
+    pen_data[name] = {
       ['dpal'] = dpal,
       ['vcol'] = vcol,
       ['matrix'] = matrix,
