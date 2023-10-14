@@ -68,16 +68,22 @@ function init_img()
   end
 end
 
+screen_w, screen_h = 127, 127
+
 function draw_img(name, x, y, ...)
   local img = pen_data[name]
+  local img_w, img_h = 127, #img.matrix - 1 -- TODO
+
+  local camera_x = peek2(0x5f28)
+  local camera_y = peek2(0x5f2a)
 
   args = {...}
   -- clipping coords (begins from 0)
-  local cx1 = max(0, max(args[1], -x))
-  local cy1 = max(0, max(args[2], -y))
-  local cx2 = min(args[3] or 127, 127 - x)
-  local cy2 = min(#img.matrix - 1, min(args[4] or 127, 127 - y))
-  print(cx1..','..cy1..'-'..cx2..','..cy2,2,2)
+  local cx1 = max(args[1] or 0, min(camera_x, 0) - x)
+  local cy1 = max(args[2] or 0, min(camera_y, 0) - y)
+  local cx2 = min(args[3] or img_w, camera_x + screen_w - x)
+  local cy2 = min(args[4] or img_h, camera_y + screen_h - y)
+  if (cx1 >= cx2 or cy1 >= cy2) return
 
   for p = 1, #img.dpal do
     pal(p - 1, img.dpal[p], 1);
@@ -86,15 +92,17 @@ function draw_img(name, x, y, ...)
   for y1 = cy1, cy2 do
     local row_data = img.matrix[y1 + 1]
     for row in all(row_data) do
-      if (row.p < 16) then
-        rectfill(x + row.x1, y + y1, x + row.x2, y + y1, row.p)
+      if (row.x2 < cx1 or row.x1 > cx2) then
+        -- out of clipping area
+      elseif (row.p < 16) then
+        rectfill(max(x + cx1, x + row.x1), y + y1, min(x + cx2, x + row.x2), y + y1, row.p)
       else
         if (img.vcol[row.p - 15] > 0xff) then
           fillp(0b1110101111101011)
         else
           fillp(0b1010010110100101)
         end
-        rectfill(x + row.x1, y + y1, x + row.x2, y + y1, img.vcol[row.p - 15])
+        rectfill(max(x + cx1, x + row.x1), y + y1, min(x + cx2, x + row.x2), y + y1, img.vcol[row.p - 15])
         fillp(0)
       end
     end
