@@ -27,6 +27,7 @@ function init_img()
       add(vcol, (c1 - 0x30) * 16 + (c2 - 0x30))
     end
 
+    local w = nil
     local matrix = {}
     for row in all(data) do
       if (sub(row, 1, 1) == '*') then
@@ -56,11 +57,15 @@ function init_img()
           end
         end
         add(matrix, row_data)
+        w = w or x
       end
     end
 
     -- ready to draw
     pen_data[name] = {
+      ['name'] = name,
+      ['w'] = w,
+      ['h'] = #matrix,
       ['dpal'] = dpal,
       ['vcol'] = vcol,
       ['matrix'] = matrix,
@@ -72,7 +77,7 @@ screen_w, screen_h = 127, 127
 
 function draw_img(name, x, y, ...)
   local img = pen_data[name]
-  local img_w, img_h = 127, #img.matrix - 1 -- TODO
+  local img_w, img_h = img.w - 1, img.h - 1
 
   local camera_x = peek2(0x5f28)
   local camera_y = peek2(0x5f2a)
