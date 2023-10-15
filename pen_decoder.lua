@@ -12,7 +12,7 @@ function init_img()
     end
     deli(data, 1)
 
-    -- draw palette
+    -- display palette
     local dpal = {}
     local dpal_header = headers[1]
     for p = 1, #dpal_header do
@@ -90,6 +90,7 @@ function draw_img(name, x, y, ...)
   local cy2 = min(args[4] or img_h, camera_y + screen_h - y)
   if (cx1 >= cx2 or cy1 >= cy2) return
 
+  -- set display palette
   for p = 1, #img.dpal do
     pal(p - 1, img.dpal[p], 1);
   end
