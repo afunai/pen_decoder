@@ -7,8 +7,7 @@ function init_img()
     -- split headers and data
     local headers = {}
     while data[1] != '---' do
-      add(headers, data[1])
-      deli(data, 1)
+      add(headers, deli(data, 1))
     end
     deli(data, 1)
 
