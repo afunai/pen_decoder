@@ -77,6 +77,8 @@ screen_w, screen_h = 127, 127
 
 function draw_img(name, x, y, ...)
   local img = pen_data[name]
+  assert(img != nil, 'image not found: ' .. name)
+
   local img_w, img_h = img.w - 1, img.h - 1
 
   local camera_x = peek2(0x5f28)
