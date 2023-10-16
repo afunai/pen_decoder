@@ -44,13 +44,13 @@ function init_img()
             -- orphan pixels
             for j = i + 1, i - len do
               local p = ord(row, j) - 0x30
-              if (p != 63) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + 1})
+              if (p != 63) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
               x += 1
             end
             i += 1 - len
           else
             local p = ord(row, i + 1) - 0x30
-            if (p != 63) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len})
+            if (p != 63) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len - 1})
             x += len
             i += 2
           end
