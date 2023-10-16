@@ -44,13 +44,13 @@ function init_img()
             -- orphan pixels
             for j = i + 1, i - len do
               local p = ord(row, j) - 0x30
-              if (p != 63) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
+              if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
               x += 1
             end
             i += 1 - len
           else
             local p = ord(row, i + 1) - 0x30
-            if (p != 63) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len - 1})
+            if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len - 1})
             x += len
             i += 2
           end
@@ -104,12 +104,12 @@ function draw_img(name, x, y, ...)
       elseif (row.p < 16) then
         rectfill(max(x + cx1, x + row.x1), y + y1, min(x + cx2, x + row.x2), y + y1, row.p)
       else
-        if (img.vcol[row.p - 15] > 0xff) then
+        if (img.vcol[row.p - 16] > 0xff) then
           fillp(0b1110101111101011)
         else
           fillp(0b1010010110100101)
         end
-        rectfill(max(x + cx1, x + row.x1), y + y1, min(x + cx2, x + row.x2), y + y1, img.vcol[row.p - 15])
+        rectfill(max(x + cx1, x + row.x1), y + y1, min(x + cx2, x + row.x2), y + y1, img.vcol[row.p - 16])
         fillp(0)
       end
     end
