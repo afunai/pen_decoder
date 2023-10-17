@@ -40,14 +40,12 @@ function init_img()
         local row_data = {}
         while (i < #row) do
           local len = ord(row, i) - 0x30
-          if (len < 0) then
-            -- orphan pixels
-            for j = i + 1, i - len do
-              local p = ord(row, j) - 0x30
-              if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
-              x += 1
-            end
-            i += 1 - len
+          if (len > 128) then
+            -- orphan pixel
+            local p = len - 129
+            if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
+            x += 1
+            i += 1
           else
             local p = ord(row, i + 1) - 0x30
             if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len - 1})
