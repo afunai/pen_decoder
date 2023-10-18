@@ -1,5 +1,15 @@
 pen_data = {}
 
+function _add_line(row_data, p, x1, x2)
+  if p != 16 then
+    if #row_data > 1 and row_data[#row_data].p == p then
+      row_data[#row_data].x2 = x2 -- extend previous line
+    else
+      add(row_data, {['p'] = p, ['x1'] = x1, ['x2'] = x2})
+    end
+  end
+end
+
 -- convert a string into image data and cache it
 function decode_img(name)
   if (type(pen_data[name]) != 'string') return
@@ -53,31 +63,19 @@ function decode_img(name)
         if (len >= 128) then
           -- len == pixel color index
           local p = len - 128
-          if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
+          _add_line(row_data, p, x, x)
           x += 1
           i += 1
         elseif (len >= 64) then
           -- len == token index
           local token = tokens[len - 64 + 1]
-          if (token.p != 16) then
-            if (#row_data > 1 and row_data[#row_data].p == token.p) then
-              row_data[#row_data].x2 = x + token.len -- extend previous line
-            else
-              add(row_data, {['p'] = token.p, ['x1'] = x, ['x2'] = x + token.len})
-            end
-          end
+          _add_line(row_data, token.p, x, x + token.len)
           x += token.len + 1
           i += 1
         else
           -- len == run length
           local p = ord(row, i + 1) - 0x30
-          if (p != 16) then
-            if (#row_data > 1 and row_data[#row_data].p == p) then
-              row_data[#row_data].x2 = x + len -- extend previous line
-            else
-              add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len})
-            end
-          end
+          _add_line(row_data, p, x, x + len)
           x += len + 1
           i += 2
         end
