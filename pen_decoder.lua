@@ -1,106 +1,109 @@
 pen_data = {}
 
-function init_img()
-  for name, str in pairs(pen_data) do
-    local data = split(str, '\n', false)
+-- convert a string into image data and cache it
+function decode_img(name)
+  if (type(pen_data[name]) != 'string') return
 
-    -- split headers and data
-    local headers = {}
-    while data[1] != '---' do
-      add(headers, deli(data, 1))
-    end
-    deli(data, 1)
+  local data = split(pen_data[name], '\n', false)
 
-    -- display palette
-    local dpal = {}
-    local dpal_header = headers[1]
-    for p = 1, #dpal_header do
-      add(dpal, ord(dpal_header, p) - 0x30)
-    end
-
-    -- virtual colors
-    local vcol = {}
-    local vcol_header = headers[2]
-    for i = 1, #vcol_header, 2 do
-      local c1, c2 = ord(vcol_header, i, 2)
-      add(vcol, (c1 - 0x30) * 16 + (c2 - 0x30))
-    end
-
-    -- indexed tokens
-    local tokens = {}
-    local tokens_header = headers[3]
-    for i = 1, #tokens_header, 2 do
-      local t1, t2 = ord(tokens_header, i, 2)
-      add(tokens, {['len'] = t1 - 0x30, ['p'] = t2 - 0x30})
-    end
-
-    local w = nil
-    local matrix = {}
-    for row in all(data) do
-      if (sub(row, 1, 1) == '*') then
-        -- ditto rows
-        for i = 1, tonum(sub(row, 2)) do
-          add(matrix, matrix[#matrix])
-        end
-      else
-        local x = 0
-        local i = 1
-        local row_data = {}
-        while (i <= #row) do
-          local len = ord(row, i) - 0x30
-          if (len >= 128) then
-            -- len == pixel color index
-            local p = len - 128
-            if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
-            x += 1
-            i += 1
-          elseif (len >= 64) then
-            -- len == token index
-            local token = tokens[len - 64 + 1]
-            if (token.p != 16) then
-              if (#row_data > 1 and row_data[#row_data].p == token.p) then
-                row_data[#row_data].x2 = x + token.len -- extend previous line
-              else
-                add(row_data, {['p'] = token.p, ['x1'] = x, ['x2'] = x + token.len})
-              end
-            end
-            x += token.len + 1
-            i += 1
-          else
-            -- len == run length
-            local p = ord(row, i + 1) - 0x30
-            if (p != 16) then
-              if (#row_data > 1 and row_data[#row_data].p == p) then
-                row_data[#row_data].x2 = x + len -- extend previous line
-              else
-                add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len})
-              end
-            end
-            x += len + 1
-            i += 2
-          end
-        end
-        add(matrix, row_data)
-        w = w or x
-      end
-    end
-
-    -- ready to draw
-    pen_data[name] = {
-      ['name'] = name,
-      ['w'] = w,
-      ['h'] = #matrix,
-      ['dpal'] = dpal,
-      ['vcol'] = vcol,
-      ['matrix'] = matrix,
-    }
+  -- split headers and data
+  local headers = {}
+  while data[1] != '---' do
+    add(headers, deli(data, 1))
   end
+  deli(data, 1)
+
+  -- display palette
+  local dpal = {}
+  local dpal_header = headers[1]
+  for p = 1, #dpal_header do
+    add(dpal, ord(dpal_header, p) - 0x30)
+  end
+
+  -- virtual colors
+  local vcol = {}
+  local vcol_header = headers[2]
+  for i = 1, #vcol_header, 2 do
+    local c1, c2 = ord(vcol_header, i, 2)
+    add(vcol, (c1 - 0x30) * 16 + (c2 - 0x30))
+  end
+
+  -- indexed tokens
+  local tokens = {}
+  local tokens_header = headers[3]
+  for i = 1, #tokens_header, 2 do
+    local t1, t2 = ord(tokens_header, i, 2)
+    add(tokens, {['len'] = t1 - 0x30, ['p'] = t2 - 0x30})
+  end
+
+  local w = nil
+  local matrix = {}
+  for row in all(data) do
+    if (sub(row, 1, 1) == '*') then
+      -- ditto rows
+      for i = 1, tonum(sub(row, 2)) do
+        add(matrix, matrix[#matrix])
+      end
+    else
+      local x = 0
+      local i = 1
+      local row_data = {}
+      while (i <= #row) do
+        local len = ord(row, i) - 0x30
+        if (len >= 128) then
+          -- len == pixel color index
+          local p = len - 128
+          if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
+          x += 1
+          i += 1
+        elseif (len >= 64) then
+          -- len == token index
+          local token = tokens[len - 64 + 1]
+          if (token.p != 16) then
+            if (#row_data > 1 and row_data[#row_data].p == token.p) then
+              row_data[#row_data].x2 = x + token.len -- extend previous line
+            else
+              add(row_data, {['p'] = token.p, ['x1'] = x, ['x2'] = x + token.len})
+            end
+          end
+          x += token.len + 1
+          i += 1
+        else
+          -- len == run length
+          local p = ord(row, i + 1) - 0x30
+          if (p != 16) then
+            if (#row_data > 1 and row_data[#row_data].p == p) then
+              row_data[#row_data].x2 = x + len -- extend previous line
+            else
+              add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len})
+            end
+          end
+          x += len + 1
+          i += 2
+        end
+      end
+      add(matrix, row_data)
+      w = w or x
+    end
+  end
+
+  -- ready to draw
+  pen_data[name] = {
+    ['name'] = name,
+    ['w'] = w,
+    ['h'] = #matrix,
+    ['dpal'] = dpal,
+    ['vcol'] = vcol,
+    ['matrix'] = matrix,
+  }
+  return pen_data[name]
 end
 
 screen_w, screen_h = 127, 127
 
 function draw_img(name, ...)
   local img = pen_data[name]
+  if (type(img) == 'string') img = decode_img(name)
   assert(img != nil, 'image not found: ' .. name)
 
   args = {...}

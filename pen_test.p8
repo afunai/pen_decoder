@@ -7,7 +7,6 @@ __lua__
 function _init()
  #include pen_decoder.lua
  #include pen_data.lua
- init_img()
 end
 
 function _draw()
