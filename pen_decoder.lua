@@ -26,6 +26,14 @@ function init_img()
       add(vcol, (c1 - 0x30) * 16 + (c2 - 0x30))
     end
 
+    -- indexed tokens
+    local tokens = {}
+    local tokens_header = headers[3]
+    for i = 1, #tokens_header, 2 do
+      local t1, t2 = ord(tokens_header, i, 2)
+      add(tokens, {['len'] = t1 - 0x30, ['p'] = t2 - 0x30})
+    end
+
     local w = nil
     local matrix = {}
     for row in all(data) do
@@ -38,15 +46,28 @@ function init_img()
         local x = 0
         local i = 1
         local row_data = {}
-        while (i < #row) do
+        while (i <= #row) do
           local len = ord(row, i) - 0x30
           if (len >= 128) then
-            -- orphan pixel
+            -- len == pixel color index
             local p = len - 128
             if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x})
             x += 1
             i += 1
+          elseif (len >= 64) then
+            -- len == token index
+            local token = tokens[len - 64 + 1]
+            if (token.p != 16) then
+              if (#row_data > 1 and row_data[#row_data].p == token.p) then
+                row_data[#row_data].x2 = x + token.len -- extend previous line
+              else
+                add(row_data, {['p'] = token.p, ['x1'] = x, ['x2'] = x + token.len})
+              end
+            end
+            x += token.len + 1
+            i += 1
           else
+            -- len == run length
             local p = ord(row, i + 1) - 0x30
             if (p != 16) then
               if (#row_data > 1 and row_data[#row_data].p == p) then
