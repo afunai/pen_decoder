@@ -2,7 +2,7 @@ pen_data = {}
 
 function _add_line(row_data, p, x1, x2)
   if p != 16 then
-    if #row_data > 1 and row_data[#row_data].p == p then
+    if #row_data > 1 and row_data[#row_data].x1 == x1 - 1 and row_data[#row_data].p == p then
       row_data[#row_data].x2 = x2 -- extend previous line
     else
       add(row_data, {['p'] = p, ['x1'] = x1, ['x2'] = x2})
