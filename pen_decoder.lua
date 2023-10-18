@@ -48,7 +48,13 @@ function init_img()
             i += 1
           else
             local p = ord(row, i + 1) - 0x30
-            if (p != 16) add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len})
+            if (p != 16) then
+              if (#row_data > 1 and row_data[#row_data].p == p) then
+                row_data[#row_data].x2 = x + len -- extend previous line
+              else
+                add(row_data, {['p'] = p, ['x1'] = x, ['x2'] = x + len})
+              end
+            end
             x += len + 1
             i += 2
           end
