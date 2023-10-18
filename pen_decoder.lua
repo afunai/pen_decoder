@@ -72,21 +72,24 @@ end
 
 screen_w, screen_h = 127, 127
 
-function draw_img(name, x, y, ...)
+function draw_img(name, ...)
   local img = pen_data[name]
   assert(img != nil, 'image not found: ' .. name)
+
+  args = {...}
+  local x = args[1] or 0
+  local y = args[2] or 0
 
   local img_w, img_h = img.w - 1, img.h - 1
 
   local camera_x = peek2(0x5f28)
   local camera_y = peek2(0x5f2a)
 
-  args = {...}
   -- clipping coords (begins from 0)
-  local cx1 = max(args[1] or 0, min(camera_x, 0) - x)
-  local cy1 = max(args[2] or 0, min(camera_y, 0) - y)
-  local cx2 = min(args[3] or img_w, camera_x + screen_w - x)
-  local cy2 = min(args[4] or img_h, camera_y + screen_h - y)
+  local cx1 = max(args[3] or 0, min(camera_x, 0) - x)
+  local cy1 = max(args[4] or 0, min(camera_y, 0) - y)
+  local cx2 = min(args[5] or img_w, camera_x + screen_w - x)
+  local cy2 = min(args[6] or img_h, camera_y + screen_h - y)
   if (cx1 >= cx2 or cy1 >= cy2) return
 
   -- set display palette
