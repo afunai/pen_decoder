@@ -105,8 +105,8 @@ function draw_img(name, ...)
   assert(img != nil, 'image not found: ' .. name)
 
   args = {...}
-  local x = args[1] or 0
-  local y = args[2] or 0
+  local x = (args[1] or 0) - (args[3] or 0) -- shift coord according to cx1
+  local y = (args[2] or 0) - (args[4] or 0) -- same for y
 
   local img_w, img_h = img.w - 1, img.h - 1
 
