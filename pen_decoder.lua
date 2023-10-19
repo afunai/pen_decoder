@@ -1,6 +1,6 @@
 pen_data = {}
 
-function _add_line(row_data, p, x1, x2)
+function _add_token(row_data, p, x1, x2)
   if p != 16 then
     if #row_data > 1 and row_data[#row_data].x1 == x1 - 1 and row_data[#row_data].p == p then
       row_data[#row_data].x2 = x2 -- extend previous line
@@ -63,19 +63,19 @@ function decode_img(name)
         if (len >= 128) then
           -- len == pixel color index
           local p = len - 128
-          _add_line(row_data, p, x, x)
+          _add_token(row_data, p, x, x)
           x += 1
           i += 1
         elseif (len >= 64) then
           -- len == token index
           local token = tokens[len - 64 + 1]
-          _add_line(row_data, token.p, x, x + token.len)
+          _add_token(row_data, token.p, x, x + token.len)
           x += token.len + 1
           i += 1
         else
           -- len == run length
           local p = ord(row, i + 1) - 0x30
-          _add_line(row_data, p, x, x + len)
+          _add_token(row_data, p, x, x + len)
           x += len + 1
           i += 2
         end
@@ -127,18 +127,18 @@ function draw_img(name, ...)
 
   for y1 = cy1, cy2 do
     local row_data = img.matrix[y1 + 1]
-    for row in all(row_data) do
-      if (row.x2 < cx1 or row.x1 > cx2) then
+    for token in all(row_data) do
+      if (token.x2 < cx1 or token.x1 > cx2) then
         -- out of clipping area
-      elseif (row.p < 16) then
-        rectfill(max(x + cx1, x + row.x1), y + y1, min(x + cx2, x + row.x2), y + y1, row.p)
+      elseif (token.p < 16) then
+        rectfill(max(x + cx1, x + token.x1), y + y1, min(x + cx2, x + token.x2), y + y1, token.p)
       else
-        if (img.vcol[row.p - 16] > 0xff) then
+        if (img.vcol[token.p - 16] > 0xff) then
           fillp(0b1110101111101011)
         else
           fillp(0b1010010110100101)
         end
-        rectfill(max(x + cx1, x + row.x1), y + y1, min(x + cx2, x + row.x2), y + y1, img.vcol[row.p - 16])
+        rectfill(max(x + cx1, x + token.x1), y + y1, min(x + cx2, x + token.x2), y + y1, img.vcol[token.p - 16])
         fillp(0)
       end
     end
