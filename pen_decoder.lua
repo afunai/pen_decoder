@@ -125,20 +125,21 @@ function draw_img(name, ...)
     pal(p - 1, img.dpal[p], 1);
   end
 
+  clip((args[1] or 0) - camera_x, (args[2] or 0) - camera_y, cx2 - cx1 + 1, cy2 - cy1 + 1)
   for y1 = cy1, cy2 do
     local row_data = img.matrix[y1 + 1]
     for token in all(row_data) do
       if (token.x2 < cx1 or token.x1 > cx2) then
         -- out of clipping area
       elseif (token.p < 16) then
-        rectfill(max(x + cx1, x + token.x1), y + y1, min(x + cx2, x + token.x2), y + y1, token.p)
+        rectfill(x + token.x1, y + y1, x + token.x2, y + y1, token.p)
       else
         if (img.vcol[token.p - 16] > 0xff) then
           fillp(0b1110101111101011)
         else
           fillp(0b1010010110100101)
         end
-        rectfill(max(x + cx1, x + token.x1), y + y1, min(x + cx2, x + token.x2), y + y1, img.vcol[token.p - 16])
+        rectfill(x + token.x1, y + y1, x + token.x2, y + y1, img.vcol[token.p - 16])
         fillp(0)
       end
     end
