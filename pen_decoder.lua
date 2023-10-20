@@ -59,7 +59,9 @@ function decode_img(name)
   local w = nil
   local matrix = {}
   for row in all(data) do
-    if (sub(row, 1, 1) == '*') then
+    if (row == '') then
+      -- skip blank lines
+    elseif (sub(row, 1, 1) == '*') then
       -- ditto rows
       for i = 1, tonum(sub(row, 2)) do
         add(matrix, matrix[#matrix])
