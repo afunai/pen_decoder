@@ -151,6 +151,7 @@ function draw_img(name, ...)
   -- clipping region (from top-left corner of the image)
   local cx1, cy1 = (args[3] or 0), (args[4] or 0)
   local cx2, cy2 = (args[5] or img.w - 1), (args[6] or img.h - 1)
+  cx2, cy2 = min(cx2, img.w - 1), min(cy2, img.h - 1)
 
   -- shifted coords
   local shifted_x, shifted_y = (x - cx1), (y - cy1)
