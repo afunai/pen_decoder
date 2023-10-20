@@ -95,6 +95,23 @@ transitions = {
     end
     rectfill(0, 0, 127, 127, 0)
   end,
+
+  -- split
+  function(frame)
+    local phase = 0
+    if frame <= 16 then
+      phase = frame - 1
+    else
+      phase = 32 - frame
+    end
+    local deg = phase / 15 / 4
+    px = cos(deg) * 64
+    py = sin(deg) * 64
+    draw_img(img_names[i], -64 + px, py, 0, 0, 63, 63)
+    draw_img(img_names[i], 64 - py, -64 + px, 64, 0, 128, 63)
+    draw_img(img_names[i], py, 128 - px, 0, 64, 63, 128)
+    draw_img(img_names[i], 128 - px, 64 - py, 64, 64, 128, 128)
+  end,
 }
 
 -- modes
@@ -120,7 +137,7 @@ modes = {
       local this = modes.transition
       if this.frame == 0 then
         -- start transition
-        this.transition_type = 2
+        this.transition_type = 3
         this.frame = 1
       elseif this.frame < 16 then
         -- fade out
