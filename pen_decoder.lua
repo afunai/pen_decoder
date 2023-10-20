@@ -146,11 +146,11 @@ function draw_img(name, ...)
   local camera_x, camera_y = peek2(0x5f28), peek2(0x5f2a)
 
   -- display coords
-  local x, y = (args[1] or 0), (args[2] or 0)
+  local x, y = flr(args[1] or 0), flr(args[2] or 0)
 
   -- clipping region (from top-left corner of the image)
-  local cx1, cy1 = (args[3] or 0), (args[4] or 0)
-  local cx2, cy2 = (args[5] or img.w - 1), (args[6] or img.h - 1)
+  local cx1, cy1 = flr(args[3] or 0), flr(args[4] or 0)
+  local cx2, cy2 = flr(args[5] or img.w - 1), flr(args[6] or img.h - 1)
   cx2, cy2 = min(cx2, img.w - 1), min(cy2, img.h - 1)
 
   -- shifted coords
