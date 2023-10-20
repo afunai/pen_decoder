@@ -132,12 +132,13 @@ modes = {
 
   ['transition'] = {
     ['frame'] = 0,
-    ['transition_type'] = 2,
+    ['transition_type'] = 0,
     ['update'] = function()
       local this = modes.transition
       if this.frame == 0 then
         -- start transition
-        this.transition_type = 3
+        this.transition_type += 1
+        if (this.transition_type > #transitions) this.transition_type = 1
         this.frame = 1
       elseif this.frame < 16 then
         -- fade out
