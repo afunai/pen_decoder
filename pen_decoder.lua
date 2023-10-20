@@ -1,12 +1,22 @@
 pen_data = {}
 
-function _add_token(row_data, p, x1, x2)
-  if p != 16 then
-    if #row_data > 1 and row_data[#row_data].x1 == x1 - 1 and row_data[#row_data].p == p then
-      row_data[#row_data].x2 = x2 -- extend previous line
-    else
-      add(row_data, {['p'] = p, ['x1'] = x1, ['x2'] = x2})
-    end
+function _add_token_to_plane(plane, p, x1, x2)
+  if #plane > 1 and plane[#plane].x1 == x1 - 1 and plane[#plane].p == p then
+    plane[#plane].x2 = x2 -- extend previous token
+  else
+    add(plane, {['p'] = p, ['x1'] = x1, ['x2'] = x2})
+  end
+end
+
+function _add_token(row_data, p, x1, x2, vcol)
+  if p < 16 then
+    _add_token_to_plane(row_data[1], p, x1, x2)
+  elseif p == 16 then
+    -- skip transparent tokens
+  elseif vcol[p - 16] <= 0xff then
+    _add_token_to_plane(row_data[2], vcol[p - 16], x1, x2)
+  else
+    _add_token_to_plane(row_data[3], vcol[p - 16], x1, x2)
   end
 end
 
@@ -57,25 +67,25 @@ function decode_img(name)
     else
       local x = 0
       local i = 1
-      local row_data = {}
+      local row_data = {{}, {}, {}} -- 3 planes for each color type
       while (i <= #row) do
         local len = ord(row, i) - 0x30
         if (len >= 128) then
           -- len == pixel color index
           local p = len - 128
-          _add_token(row_data, p, x, x)
+          _add_token(row_data, p, x, x, vcol)
           x += 1
           i += 1
         elseif (len >= 64) then
           -- len == token index
           local token = tokens[len - 64 + 1]
-          _add_token(row_data, token.p, x, x + token.len)
+          _add_token(row_data, token.p, x, x + token.len, vcol)
           x += token.len + 1
           i += 1
         else
           -- len == run length
           local p = ord(row, i + 1) - 0x30
-          _add_token(row_data, p, x, x + len)
+          _add_token(row_data, p, x, x + len, vcol)
           x += len + 1
           i += 2
         end
@@ -95,6 +105,25 @@ function decode_img(name)
     ['matrix'] = matrix,
   }
   return pen_data[name]
+end
+
+-- fill patterns for each plane
+fill_patterns = {
+  0b0000000000000000,
+  0b1010010110100101,
+  0b1110101111101011,
+}
+
+function _draw_plane(matrix, plane_index, x, y, cx1, cy1, cx2, cy2)
+  fillp(fill_patterns[plane_index])
+  for y1 = cy1, cy2 do
+    local row_data = matrix[y1 + 1]
+    for token in all(row_data[plane_index]) do
+      -- should skip if (token.x2 < cx1 or token.x1 > cx2), but the comparison is way too slow :(
+      rectfill(x + token.x1, y + y1, x + token.x2, y + y1, token.p)
+    end
+  end
+  fillp(0)
 end
 
 screen_w, screen_h = 127, 127
@@ -126,22 +155,7 @@ function draw_img(name, ...)
   end
 
   clip((args[1] or 0) - camera_x, (args[2] or 0) - camera_y, cx2 - cx1 + 1, cy2 - cy1 + 1)
-  for y1 = cy1, cy2 do
-    local row_data = img.matrix[y1 + 1]
-    for token in all(row_data) do
-      if (token.x2 < cx1 or token.x1 > cx2) then
-        -- out of clipping area
-      elseif (token.p < 16) then
-        rectfill(x + token.x1, y + y1, x + token.x2, y + y1, token.p)
-      else
-        if (img.vcol[token.p - 16] > 0xff) then
-          fillp(0b1110101111101011)
-        else
-          fillp(0b1010010110100101)
-        end
-        rectfill(x + token.x1, y + y1, x + token.x2, y + y1, img.vcol[token.p - 16])
-        fillp(0)
-      end
-    end
+  for plane_index = 1, 3 do
+    _draw_plane(img.matrix, plane_index, x, y, cx1, cy1, cx2, cy2)
   end
 end
