@@ -5,12 +5,26 @@ __lua__
 -- by afunai
 
 function _init()
- #include pen_decoder.lua
- #include pen_data.lua
+  --[[
+    defines "draw_img":
+      draw_img(
+        image_name,
+        [x, y],
+        [cx1, cy1, cx2, cy2]
+      }
+  --]]
+  #include pen_decoder.lua
+
+  --[[
+    defines "pen_data":
+      each image is
+        an encoded string value
+        in the table.
+  --]]
+  #include pen_data.lua
 end
 
 function _draw()
- cls()
- draw_img('test')
+  cls()
+  draw_img('icon')
 end
-
