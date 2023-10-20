@@ -22,6 +22,13 @@ function _init()
         in the table.
   --]]
   #include pen_data.lua
+
+  --[[
+    decode string values
+      in pen_data
+      and cache them.
+  ]]
+  init_img()
 end
 
 function _draw()

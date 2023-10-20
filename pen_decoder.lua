@@ -107,6 +107,12 @@ function decode_img(name)
   return pen_data[name]
 end
 
+function init_img()
+  for name, img in pairs(pen_data) do
+    decode_img(name)
+  end
+end
+
 -- fill patterns for each plane
 fill_patterns = {
   0b0000000000000000,
