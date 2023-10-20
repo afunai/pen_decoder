@@ -122,12 +122,12 @@ fill_patterns = {
   0b1110101111101011,
 }
 
-function _draw_plane(matrix, plane_index, x, y, cx1, cy1, cx2, cy2)
+function _draw_plane(matrix, plane_index, x, y, dx1, dy1, dx2, dy2)
   fillp(fill_patterns[plane_index])
-  for y1 = cy1, cy2 do
+  for y1 = dy1, dy2 do
     local row_data = matrix[y1 + 1]
     for token in all(row_data[plane_index]) do
-      -- should skip if (token.x2 < cx1 or token.x1 > cx2), but the comparison is way too slow :(
+      -- should skip if (token.x2 < dx1 or token.x1 > dx2), but the comparison is way too slow :(
       rectfill(x + token.x1, y + y1, x + token.x2, y + y1, token.p)
     end
   end
@@ -139,31 +139,37 @@ screen_w, screen_h = 127, 127
 function draw_img(name, ...)
   local img = pen_data[name]
   if (type(img) == 'string') img = decode_img(name)
-  assert(img != nil, 'image not found: ' .. name)
-
+  assert(img != nil, 'image not found: ' .. tostr(name))
   args = {...}
-  local x = (args[1] or 0) - (args[3] or 0) -- shift coord according to cx1
-  local y = (args[2] or 0) - (args[4] or 0) -- same for y
 
-  local img_w, img_h = img.w - 1, img.h - 1
+  -- camera coords
+  local camera_x, camera_y = peek2(0x5f28), peek2(0x5f2a)
 
-  local camera_x = peek2(0x5f28)
-  local camera_y = peek2(0x5f2a)
+  -- display coords
+  local x, y = (args[1] or 0), (args[2] or 0)
 
-  -- clipping coords (begins from 0)
-  local cx1 = max(args[3] or 0, min(camera_x, 0) - x)
-  local cy1 = max(args[4] or 0, min(camera_y, 0) - y)
-  local cx2 = min(args[5] or img_w, camera_x + screen_w - x)
-  local cy2 = min(args[6] or img_h, camera_y + screen_h - y)
-  if (cx1 >= cx2 or cy1 >= cy2) return
+  -- clipping region (from top-left corner of the image)
+  local cx1, cy1 = (args[3] or 0), (args[4] or 0)
+  local cx2, cy2 = (args[5] or img.w - 1), (args[6] or img.h - 1)
+
+  -- shifted coords
+  local shifted_x, shifted_y = (x - cx1), (y - cy1)
+
+  -- display region in the whole image
+  local dx1 = max(cx1, camera_x - shifted_x)
+  local dy1 = max(cy1, camera_y - shifted_y)
+  local dx2 = min(cx2, camera_x + screen_w - shifted_x)
+  local dy2 = min(cy2, camera_y + screen_h - shifted_y)
+  if (dx1 >= dx2 or dy1 >= dy2) return
 
   -- set display palette
   for p = 1, #img.dpal do
     pal(p - 1, img.dpal[p], 1);
   end
 
-  clip((args[1] or 0) - camera_x, (args[2] or 0) - camera_y, cx2 - cx1 + 1, cy2 - cy1 + 1)
+  clip(x - camera_x, y - camera_y, cx2 - cx1 + 1, cy2 - cy1 + 1)
   for plane_index = 1, 3 do
-    _draw_plane(img.matrix, plane_index, x, y, cx1, cy1, cx2, cy2)
+    _draw_plane(img.matrix, plane_index, shifted_x, shifted_y, dx1, dy1, dx2, dy2)
   end
+  clip(0) -- TODO: restore the original clip region
 end
