@@ -37,28 +37,69 @@ function _init()
   end
 end
 
--- image index
-i = 1
-
-function _update()
-  if (btnp(0)) i -= 1
-  if (btnp(1)) i += 1
-  if (i < 1) i = #img_names
-  if (i > #img_names) i = 1
-end
-
--- image properties
+-- print image properties
 function print_properties(img_name)
   local img = pen_data[img_name]
   print('name:'..img.name, 77, 3, 0)
   print(' dim:'..img.w..'X'..img.h)
 end
 
+-- image index
+i = 1
+
+-- transition vector
+vi = 0
+
+-- modes
+modes = {
+  ['waiting'] = {
+    ['update'] = function()
+      if (btnp(0)) mode = 'fadeout' vi = -1
+      if (btnp(1)) mode = 'fadeout' vi = 1
+    end,
+    ['draw'] = function()
+      cls()
+      draw_img(img_names[i])
+
+      print_properties(img_names[i])
+      print('press ⬅️➡️')
+    end,
+  },
+
+  ['fadeout'] = {
+    ['frame'] = 0,
+    ['update'] = function()
+      local this = modes.fadeout
+      if this.frame == 0 then
+        -- start transition
+        this.frame = 1
+      elseif this.frame <= 16 then
+        -- update transition
+        this.frame += 1
+      else
+        -- end transition
+        i += vi
+        if (i < 1) i = #img_names
+        if (i > #img_names) i = 1
+
+        this.frame = 0
+        mode = 'waiting'
+      end
+    end,
+    ['draw'] = function()
+      local this = modes.fadeout
+      cls()
+      draw_img(img_names[i], this.frame * vi * 8, 0)
+    end,
+  },
+}
+
+mode = 'waiting'
+
+function _update60()
+  modes[mode].update()
+end
+
 function _draw()
-  cls()
-
-  draw_img(img_names[i])
-
-  print_properties(img_names[i])
-  print('press ⬅️➡️')
+  modes[mode].draw()
 end
