@@ -50,6 +50,53 @@ i = 1
 -- transition vector
 vi = 0
 
+-- shade patterns for transition
+shades = {
+  0b1111111110111111,
+  0b1111111110011111,
+  0b1111110110011111,
+  0b1111100110011111,
+  0b1111000110011111,
+  0b1111000100011111,
+  0b1111000100010111,
+  0b1111000100010011,
+
+  0b1111000100010001,
+  0b1111000100010000,
+  0b1111000100000000,
+  0b1111000000000000,
+  0b1110000000000000,
+  0b1100000000000000,
+  0b1000000000000000,
+  0b0000000000000000,
+}
+
+-- transition variations
+-- frame  1-16: fadeout
+-- frame 17-32: fadein
+transitions = {
+  -- slide
+  function(frame)
+    if frame <= 16 then
+      draw_img(img_names[i], frame * vi * 8, 0)
+    else
+      draw_img(img_names[i], (frame - 17) * vi * 8 + (-128 * vi), 0)
+    end
+  end,
+
+  -- dissolve
+  function(frame)
+    draw_img(img_names[i])
+    print(frame,100,3)
+    if frame <= 16 then
+      fillp(shades[frame] + 0b.1)
+    else
+      fillp(shades[33 - frame] + 0b.1)
+    end
+    rectfill(0, 0, 127, 127, 0)
+  end,
+}
+
 -- modes
 modes = {
   ['waiting'] = {
@@ -68,10 +115,12 @@ modes = {
 
   ['transition'] = {
     ['frame'] = 0,
+    ['transition_type'] = 2,
     ['update'] = function()
       local this = modes.transition
       if this.frame == 0 then
         -- start transition
+        this.transition_type = 2
         this.frame = 1
       elseif this.frame < 16 then
         -- fade out
@@ -94,11 +143,7 @@ modes = {
     ['draw'] = function()
       local this = modes.transition
       cls()
-      if this.frame <= 16 then
-        draw_img(img_names[i], this.frame * vi * 8, 0)
-      else
-        draw_img(img_names[i], (this.frame - 17) * vi * 8 + (-128 * vi), 0)
-      end
+      if (this.frame > 0) transitions[this.transition_type](this.frame)
     end,
   },
 }
