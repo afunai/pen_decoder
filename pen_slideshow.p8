@@ -54,8 +54,8 @@ vi = 0
 modes = {
   ['waiting'] = {
     ['update'] = function()
-      if (btnp(0)) mode = 'fadeout' vi = -1
-      if (btnp(1)) mode = 'fadeout' vi = 1
+      if (btnp(0)) mode = 'transition' vi = -1
+      if (btnp(1)) mode = 'transition' vi = 1
     end,
     ['draw'] = function()
       cls()
@@ -66,30 +66,39 @@ modes = {
     end,
   },
 
-  ['fadeout'] = {
+  ['transition'] = {
     ['frame'] = 0,
     ['update'] = function()
-      local this = modes.fadeout
+      local this = modes.transition
       if this.frame == 0 then
         -- start transition
         this.frame = 1
-      elseif this.frame <= 16 then
-        -- update transition
+      elseif this.frame < 16 then
+        -- fade out
         this.frame += 1
-      else
-        -- end transition
+      elseif this.frame == 16 then
+        -- switch images
         i += vi
         if (i < 1) i = #img_names
         if (i > #img_names) i = 1
-
+        this.frame += 1
+      elseif this.frame < 32 then
+        -- fade in
+        this.frame += 1
+      else
+        -- end transition
         this.frame = 0
         mode = 'waiting'
       end
     end,
     ['draw'] = function()
-      local this = modes.fadeout
+      local this = modes.transition
       cls()
-      draw_img(img_names[i], this.frame * vi * 8, 0)
+      if this.frame <= 16 then
+        draw_img(img_names[i], this.frame * vi * 8, 0)
+      else
+        draw_img(img_names[i], (this.frame - 17) * vi * 8 + (-128 * vi), 0)
+      end
     end,
   },
 }
