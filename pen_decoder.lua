@@ -168,9 +168,12 @@ function draw_img(name, ...)
     pal(p - 1, img.dpal[p], 1);
   end
 
+  -- override _draw_plane() function
+  local draw_plane_func = args[7] or _draw_plane
+
   clip(x - camera_x, y - camera_y, cx2 - cx1 + 1, cy2 - cy1 + 1)
   for plane_index = 1, 3 do
-    _draw_plane(img.matrix, plane_index, shifted_x, shifted_y, dx1, dy1, dx2, dy2)
+    draw_plane_func(img.matrix, plane_index, shifted_x, shifted_y, dx1, dy1, dx2, dy2)
   end
   clip(0) -- TODO: restore the original clip region
 end
