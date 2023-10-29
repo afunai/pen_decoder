@@ -115,6 +115,17 @@ function init_img()
   end
 end
 
+function get_img(img_or_name)
+  if type(img_or_name) == 'table' then
+    return img_or_name
+  else
+    local img = pen_data[img_or_name]
+    if (type(img) == 'string') img = decode_img(img_or_name)
+    assert(img != nil, 'image not found: ' .. tostr(img_or_name))
+    return img
+  end
+end
+
 -- fill patterns for each plane
 fill_patterns = {
   0b0000000000000000,
@@ -136,10 +147,8 @@ end
 
 screen_w, screen_h = 127, 127
 
-function draw_img(name, ...)
-  local img = pen_data[name]
-  if (type(img) == 'string') img = decode_img(name)
-  assert(img != nil, 'image not found: ' .. tostr(name))
+function draw_img(img_or_name, ...)
+  local img = get_img(img_or_name)
   args = {...}
 
   -- camera coords
