@@ -126,6 +126,36 @@ function get_img(img_or_name)
   end
 end
 
+-- crop src img and create a new img object
+function crop_img(img_or_name, cx1, cy1, cx2, cy2)
+  local img = get_img(img_or_name)
+
+  local matrix = {}
+  for y1 = cy1, cy2 do
+    local row_data = {}
+    for plane_index = 1, 3 do
+      local plane = {}
+      for token in all(img.matrix[y1 + 1][plane_index]) do
+        if token.x2 >= cx1 and token.x1 <= cx2 then
+          add(plane, {['x1'] = max(token.x1, cx1) - cx1,
+            ['x2'] = min(token.x2, cx2) - cx1, ['p'] = token.p})
+        end
+      end
+      add(row_data, plane)
+    end
+    add(matrix, row_data)
+  end
+
+  return {
+    ['name'] = img.name .. ' (cropped)',
+    ['w'] = cx2 - cx1 + 1,
+    ['h'] = #matrix,
+    ['dpal'] = img.dpal,
+    ['vcol'] = img.vcol,
+    ['matrix'] = matrix,
+  }
+end
+
 -- fill patterns for each plane
 fill_patterns = {
   0b0000000000000000,
