@@ -1,6 +1,6 @@
 pen_data = {}
 
-function _add_token_to_plane(plane, p, x1, x2)
+local function _add_token_to_plane(plane, p, x1, x2)
   if #plane > 1 and plane[#plane].x1 == x1 - 1 and plane[#plane].p == p then
     plane[#plane].x2 = x2 -- extend previous token
   else
@@ -8,7 +8,7 @@ function _add_token_to_plane(plane, p, x1, x2)
   end
 end
 
-function _add_token(row_data, p, x1, x2, vcol)
+local function _add_token(row_data, p, x1, x2, vcol)
   if p < 16 then
     _add_token_to_plane(row_data[1], p, x1, x2)
   elseif p == 16 then
@@ -157,13 +157,13 @@ function crop_img(img_or_name, cx1, cy1, cx2, cy2)
 end
 
 -- fill patterns for each plane
-fill_patterns = {
+local fill_patterns = {
   0b0000000000000000,
   0b1010010110100101,
   0b1110101111101011,
 }
 
-function _draw_plane(matrix, plane_index, x, y, dx1, dy1, dx2, dy2)
+local function _draw_plane(matrix, plane_index, x, y, dx1, dy1, dx2, dy2)
   fillp(fill_patterns[plane_index])
   for y1 = dy1, dy2 do
     local row_data = matrix[y1 + 1]
@@ -175,11 +175,11 @@ function _draw_plane(matrix, plane_index, x, y, dx1, dy1, dx2, dy2)
   fillp(0)
 end
 
-screen_w, screen_h = 127, 127
+local screen_w, screen_h = 127, 127
 
 function draw_img(img_or_name, ...)
   local img = get_img(img_or_name)
-  args = {...}
+  local args = {...}
 
   -- camera coords
   local camera_x, camera_y = peek2(0x5f28), peek2(0x5f2a)
