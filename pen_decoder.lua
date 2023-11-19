@@ -39,6 +39,8 @@ end
 
 local screen_w, screen_h = 127, 127
 
+--preserve: Pen
+
 Pen = {
   -- all the image data (encoded string | decoded object)
   data = {},
