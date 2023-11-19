@@ -4,7 +4,7 @@ function _add_token_to_plane(plane, p, x1, x2)
   if #plane > 1 and plane[#plane].x1 == x1 - 1 and plane[#plane].p == p then
     plane[#plane].x2 = x2 -- extend previous token
   else
-    add(plane, {['p'] = p, ['x1'] = x1, ['x2'] = x2})
+    add(plane, {p = p, x1 = x1, x2 = x2})
   end
 end
 
@@ -53,7 +53,7 @@ function decode_img(name)
   local tokens_header = headers[3]
   for i = 1, #tokens_header, 2 do
     local t1, t2 = ord(tokens_header, i, 2)
-    add(tokens, {['len'] = t1 - 0x30, ['p'] = t2 - 0x30})
+    add(tokens, {len = t1 - 0x30, p = t2 - 0x30})
   end
 
   local w = nil
@@ -99,12 +99,12 @@ function decode_img(name)
 
   -- ready to draw
   pen_data[name] = {
-    ['name'] = name,
-    ['w'] = w,
-    ['h'] = #matrix,
-    ['dpal'] = dpal,
-    ['vcol'] = vcol,
-    ['matrix'] = matrix,
+    name = name,
+    w = w,
+    h = #matrix,
+    dpal = dpal,
+    vcol = vcol,
+    matrix = matrix,
   }
   return pen_data[name]
 end
@@ -137,8 +137,8 @@ function crop_img(img_or_name, cx1, cy1, cx2, cy2)
       local plane = {}
       for token in all(img.matrix[y1 + 1][plane_index]) do
         if token.x2 >= cx1 and token.x1 <= cx2 then
-          add(plane, {['x1'] = max(token.x1, cx1) - cx1,
-            ['x2'] = min(token.x2, cx2) - cx1, ['p'] = token.p})
+          add(plane, {x1 = max(token.x1, cx1) - cx1,
+            x2 = min(token.x2, cx2) - cx1, p = token.p})
         end
       end
       add(row_data, plane)
@@ -147,12 +147,12 @@ function crop_img(img_or_name, cx1, cy1, cx2, cy2)
   end
 
   return {
-    ['name'] = img.name .. ' (cropped)',
-    ['w'] = cx2 - cx1 + 1,
-    ['h'] = #matrix,
-    ['dpal'] = img.dpal,
-    ['vcol'] = img.vcol,
-    ['matrix'] = matrix,
+    name = img.name .. ' (cropped)',
+    w = cx2 - cx1 + 1,
+    h = #matrix,
+    dpal = img.dpal,
+    vcol = img.vcol,
+    matrix = matrix,
   }
 end
 
