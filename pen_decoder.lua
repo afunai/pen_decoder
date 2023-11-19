@@ -121,7 +121,7 @@ function get_img(img_or_name)
   else
     local img = pen_data[img_or_name]
     if (type(img) == 'string') img = decode_img(img_or_name)
-    assert(img != nil, 'image not found: ' .. tostr(img_or_name))
+    if (img == nil) stop('image not found: ' .. tostr(img_or_name))
     return img
   end
 end
