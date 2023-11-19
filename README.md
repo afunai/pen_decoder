@@ -9,8 +9,8 @@
 ```lua
 function _init()
   --[[
-    defines "draw_img":
-      draw_img(
+    defines "Pen.draw" and other functions:
+      Pen.draw(
         image_name,
         [x, y],
         [cx1, cy1, cx2, cy2]
@@ -19,7 +19,7 @@ function _init()
   #include pen_decoder.lua
 
   --[[
-    defines "pen_data":
+    defines "Pen.data":
       each image is
         an encoded string value
         in the table.
@@ -28,15 +28,15 @@ function _init()
 
   --[[
     decode string values
-      in pen_data
+      in Pen.data
       and cache them.
   ]]
-  init_img()
+  Pen.init()
 end
 
 function _draw()
   cls()
-  draw_img('YOUR_IMAGE_NAME')
+  Pen.draw('icon')
 end
 
 ```
