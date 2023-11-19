@@ -63,7 +63,7 @@ function decode_img(name)
       -- skip blank lines
     elseif (sub(row, 1, 1) == '*') then
       -- ditto rows
-      for i = 1, tonum(sub(row, 2)) do
+      for _ = 1, tonum(sub(row, 2)) do
         add(matrix, matrix[#matrix])
       end
     else
@@ -110,7 +110,7 @@ function decode_img(name)
 end
 
 function init_img()
-  for name, img in pairs(pen_data) do
+  for name, _ in pairs(pen_data) do
     decode_img(name)
   end
 end
