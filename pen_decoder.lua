@@ -106,14 +106,14 @@ Pen = {
           elseif (len >= 64) then
             -- len == token index
             local token = tokens[len - 64 + 1]
-            _add_token(row_data, token.p, x, x + token.len, vcol)
-            x += token.len + 1
+            _add_token(row_data, token.p, x, x + token.len - 1, vcol)
+            x += token.len
             i += 1
           else
             -- len == run length
             local p = ord(row, i + 1) - 0x30
-            _add_token(row_data, p, x, x + len, vcol)
-            x += len + 1
+            _add_token(row_data, p, x, x + len - 1, vcol)
+            x += len
             i += 2
           end
         end
