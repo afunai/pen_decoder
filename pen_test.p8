@@ -13,7 +13,7 @@ function _init()
         [cx1, cy1, cx2, cy2]
       }
   --]]
-  #include pen_decoder.min.lua
+  #include pen_decoder.lua
 
   --[[
     defines "Pen.data":
