@@ -2,7 +2,7 @@
 
 ## How to Use
 
-1. Copy `pen_decoder.lua` and `pen_data.lua` into your cart folder.
+1. Copy `pen_decoder.min.lua` and `pen_data.lua` into your cart folder.
 2. Encode your own image(s) and paste them into `pen_data.lua`. You can use the encoder (a JavaScript app that works without a server) available at:  <https://github.com/afunai/pen_encoder>
 3. In YOUR_CART.p8:
 
@@ -16,7 +16,7 @@ function _init()
         [cx1, cy1, cx2, cy2]
       }
   --]]
-  #include pen_decoder.lua
+  #include pen_decoder.min.lua
 
   --[[
     defines "Pen.data":
