@@ -1,3 +1,6 @@
+--preserve: Pen
+if (Pen == nil) Pen = {data = {}}
+
 -- join all planes into one
 local function join_planes(row_data, ox)
   if (row_data == nil) return nil

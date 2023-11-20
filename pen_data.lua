@@ -1,3 +1,6 @@
+--preserve: Pen
+if (Pen == nil) Pen = {data = {}}
+
 Pen.data['icon']=[[
 0567ぬふへ
 04@405141516232645D5
