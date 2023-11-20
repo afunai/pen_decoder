@@ -46,7 +46,7 @@ Pen.composite = function (fg_img_or_name, bg_img_or_name, ...)
   local ox, oy = args[1] or 0, args[2] or 0 -- foreground offsets
 
   local matrix = {}
-  for y = min(oy, 1), max(oy + fg.h, bg.h) do
+  for y = min(oy, 0) + 1, max(oy + fg.h, bg.h) do
     local fg_plane = join_planes(fg.matrix[y - oy], max(ox, 0))
     local bg_plane = join_planes(bg.matrix[y], max(-ox, 0))
 
