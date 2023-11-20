@@ -38,13 +38,15 @@ local function split_planes(row)
 end
 
 -- overlap one image over another
-Pen.composite = function (fg_img_or_name, bg_img_or_name)
+Pen.composite = function (fg_img_or_name, bg_img_or_name, ...)
   local fg = Pen.get(fg_img_or_name)
   local bg = Pen.get(bg_img_or_name)
+  local args = {...}
+  local ox, oy = args[1] or 0, args[2] or 0 -- foreground offsets
 
   local matrix = {}
-  for y = 1, max(fg.h, bg.h) do
-    local fg_row, bg_row = fg.matrix[y], bg.matrix[y]
+  for y = min(oy, 1), max(oy + fg.h, bg.h) do
+    local fg_row, bg_row = fg.matrix[y - oy], bg.matrix[y]
 
     if fg_row == nil then
       add(matrix, bg_row)
