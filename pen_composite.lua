@@ -91,9 +91,16 @@ Pen.composite = function (fg_img_or_name, bg_img_or_name, ...)
     end
   end
 
+  local w
+  if ox >= 0 then
+    w = max(fg.w + ox, bg.w)
+  else
+    w = max(bg.w - ox, fg.w)
+  end
+
   return {
     name = fg.name .. ' + ' .. bg.name,
-    w = max(fg.w, bg.w),
+    w = w,
     h = #matrix,
     dpal = bg.dpal,
     vcol = bg.vcol,
