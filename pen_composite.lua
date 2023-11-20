@@ -1,11 +1,12 @@
 -- join all planes into one
-local function join_planes(row_data)
+local function join_planes(row_data, ox)
   if (row_data == nil) return nil
 
   local plane = {}
   for i = 1, 3 do
     for j = 1, #row_data[i] do
-      add(plane, row_data[i][j])
+      local token = row_data[i][j]
+      add(plane, {x1 = token.x1 + ox, x2 = token.x2 + ox, p = token.p})
     end
   end
 
@@ -46,14 +47,14 @@ Pen.composite = function (fg_img_or_name, bg_img_or_name, ...)
 
   local matrix = {}
   for y = min(oy, 1), max(oy + fg.h, bg.h) do
-    local fg_row, bg_row = fg.matrix[y - oy], bg.matrix[y]
+    local fg_plane = join_planes(fg.matrix[y - oy], max(ox, 0))
+    local bg_plane = join_planes(bg.matrix[y], max(-ox, 0))
 
-    if fg_row == nil then
-      add(matrix, bg_row)
-    elseif bg_row == nil then
-      add(matrix, fg_row)
+    if fg_plane == nil then
+      add(matrix, split_planes(bg_plane))
+    elseif bg_plane == nil then
+      add(matrix, split_planes(fg_plane))
     else
-      local fg_plane, bg_plane = join_planes(fg_row), join_planes(bg_row)
       local composite_plane = {}
       local bg_i = 1
       local bg_token = bg_plane[bg_i]
@@ -76,7 +77,7 @@ Pen.composite = function (fg_img_or_name, bg_img_or_name, ...)
           if bg_token.x1 < fg_token.x1 then
             add(composite_plane, {x1 = bg_token.x1, x2 = fg_token.x1 - 1, p = bg_token.p})
           end
-          bg_token = {x1 = max(bg_token.x1, fg_token.x2 + 1), x2 = bg_token.x2, p = bg_token.p}
+          bg_token.x1 = max(bg_token.x1, fg_token.x2 + 1)
         end
       end
 
