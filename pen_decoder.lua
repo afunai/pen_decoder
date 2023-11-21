@@ -24,8 +24,8 @@ end
 -- fill patterns for each plane
 local fill_patterns = {
   0b0000000000000000,
-  0b1010010110100101,
-  0b1110101111101011,
+  0b0101101001011010,
+  0b0001010000010100,
 }
 
 local function _draw_plane(matrix, plane_index, x, y, dx1, dy1, dx2, dy2)
