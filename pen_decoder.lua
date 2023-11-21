@@ -28,8 +28,36 @@ local fill_patterns = {
   0b0001010000010100,
 }
 
-local function _draw_plane(matrix, plane_index, x, y, dx1, dy1, dx2, dy2)
-  fillp(fill_patterns[plane_index])
+-- fill patterns for opacity (0..16, 16 == opaque)
+local opacity_patterns = {
+  0b1111111111111111.1,
+
+  0b1111111111111011.1,
+  0b1111011111111101.1,
+  0b1111111011111010.1,
+  0b1111010111110101.1,
+  0b1111101001111010.1,
+  0b1110010111100101.1,
+  0b0111101001011010.1,
+  0b1010010110100101.1,
+
+  0b0101101001001010.1,
+  0b1010010100000101.1,
+  0b0001101000001010.1,
+  0b0000010100000101.1,
+  0b0000101000000010.1,
+  0b0000010000000100.1,
+  0b0000001000000000.1,
+  0b0000000000000000.1,
+}
+
+local function _draw_plane(matrix, plane_index, x, y, dx1, dy1, dx2, dy2, opacity)
+  if opacity == nil or opacity >= 16 then
+    fillp(fill_patterns[plane_index])
+  else
+    fillp(opacity_patterns[opacity + 1])
+  end
+
   for y1 = dy1, dy2 do
     local row_data = matrix[y1 + 1]
     for token in all(row_data[plane_index]) do
@@ -189,9 +217,13 @@ Pen.draw = function (img_or_name, ...)
   local x, y = flr(args[1] or 0), flr(args[2] or 0)
 
   -- clipping region (from top-left corner of the image)
-  local cx1, cy1 = flr(args[3] or 0), flr(args[4] or 0)
-  local cx2, cy2 = flr(args[5] or img.w - 1), flr(args[6] or img.h - 1)
+  local clip_coords = args[3] or {}
+  local cx1, cy1 = flr(clip_coords[1] or 0), flr(clip_coords[2] or 0)
+  local cx2, cy2 = flr(clip_coords[3] or img.w - 1), flr(clip_coords[4] or img.h - 1)
   cx2, cy2 = min(cx2, img.w - 1), min(cy2, img.h - 1)
+
+  -- opacity (0..16, 16 == opaque)
+  local opacity = args[4] or 16
 
   -- shifted coords
   local shifted_x, shifted_y = (x - cx1), (y - cy1)
@@ -209,11 +241,11 @@ Pen.draw = function (img_or_name, ...)
   end
 
   -- override _draw_plane() function
-  local draw_plane_func = args[7] or _draw_plane
+  local draw_plane_func = args[5] or _draw_plane
 
   clip(x - camera_x, y - camera_y, cx2 - cx1 + 1, cy2 - cy1 + 1)
   for plane_index = 1, 3 do
-    draw_plane_func(img.matrix, plane_index, shifted_x, shifted_y, dx1, dy1, dx2, dy2)
+    draw_plane_func(img.matrix, plane_index, shifted_x, shifted_y, dx1, dy1, dx2, dy2, opacity)
   end
   clip(0) -- TODO: restore the original clip region
 end
