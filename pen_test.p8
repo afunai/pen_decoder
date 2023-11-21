@@ -8,9 +8,11 @@ function _init()
   --[[
     defines "Pen.draw" and other functions:
       Pen.draw(
-        image_name,
+        image_name | image object,
         [x, y],
-        [cx1, cy1, cx2, cy2]
+        [{cx1, cy1, cx2, cy2}],
+        [opacity],
+        [draw_plane_func()]
       }
   --]]
   #include pen_decoder.lua
