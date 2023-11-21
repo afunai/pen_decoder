@@ -55,7 +55,7 @@ local function _draw_plane(matrix, plane_index, x, y, dx1, dy1, dx2, dy2, opacit
   if opacity == nil or opacity >= 16 then
     fillp(fill_patterns[plane_index])
   else
-    fillp(opacity_patterns[opacity + 1])
+    fillp(opacity_patterns[max(flr(opacity), 0) + 1])
   end
 
   for y1 = dy1, dy2 do
