@@ -110,7 +110,8 @@ Pen.decode = function (name)
   local matrix = {}
   for row in all(data) do
     if (row == '') then
-      -- skip blank lines
+      -- transparent row
+      add(matrix, {})
     elseif (sub(row, 1, 1) == '*') then
       -- ditto rows
       for _ = 1, tonum(sub(row, 2)) do
