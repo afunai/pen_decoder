@@ -7,9 +7,11 @@ local function join_planes(row_data, ox)
 
   local plane = {}
   for i = 1, 3 do
-    for j = 1, #row_data[i] do
-      local token = row_data[i][j]
-      add(plane, {x1 = token.x1 + ox, x2 = token.x2 + ox, p = token.p})
+    if row_data[i] != nil then
+      for j = 1, #row_data[i] do
+        local token = row_data[i][j]
+        add(plane, {x1 = token.x1 + ox, x2 = token.x2 + ox, p = token.p})
+      end
     end
   end
 
