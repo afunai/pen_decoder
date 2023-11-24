@@ -86,9 +86,10 @@ Pen.decode = function (name)
   -- display palette
   local dpal = {}
   local dpal_header = headers[1]
-  for p = 1, #dpal_header do
+  for p = 2, #dpal_header do
     add(dpal, ord(dpal_header, p) - 0x30)
   end
+  add(dpal, ord(dpal_header, 1) - 0x30)
 
   -- virtual colors
   local vcol = {}
@@ -237,9 +238,7 @@ Pen.draw = function (img_or_name, ...)
   if (dx1 >= dx2 or dy1 >= dy2) return
 
   -- set display palette
-  for p = 1, #img.dpal do
-    pal(p - 1, img.dpal[p], 1);
-  end
+  pal(img.dpal, 1);
 
   -- override _draw_plane() function
   local draw_plane_func = args[5] or _draw_plane
