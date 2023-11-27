@@ -1,5 +1,5 @@
 --preserve: Pen
-if (Pen == nil) Pen = {data = {}}
+if (not Pen) Pen = {data = {}}
 
 local function _add_token_to_plane(plane, p, x1, x2)
   if #plane > 1 and plane[#plane].x1 == x1 - 1 and plane[#plane].p == p then
@@ -72,7 +72,8 @@ local screen_w, screen_h = 127, 127
 
 -- convert a string into image data and cache it
 Pen.decode = function (name)
-  if (type(Pen.data[name]) != 'string') return
+  if (not Pen.data[name]) stop('image not found: ' .. tostr(name))
+  if (Pen.cache and Pen.cache[name]) return Pen.cache[name]
 
   local data = split(Pen.data[name], '\n', false)
 
@@ -150,7 +151,7 @@ Pen.decode = function (name)
   end
 
   -- ready to draw
-  Pen.data[name] = {
+  local decoded_data = {
     name = name,
     w = w,
     h = #matrix,
@@ -158,7 +159,12 @@ Pen.decode = function (name)
     vcol = vcol,
     matrix = matrix,
   }
-  return Pen.data[name]
+
+  -- save a cache
+  if (not Pen.cache) Pen.cache = {}
+  Pen.cache[name] = decoded_data
+
+  return decoded_data
 end
 
 Pen.init = function ()
@@ -171,10 +177,7 @@ Pen.get = function (img_or_name)
   if type(img_or_name) == 'table' then
     return img_or_name
   else
-    local img = Pen.data[img_or_name]
-    if (type(img) == 'string') img = Pen.decode(img_or_name)
-    if (img == nil) stop('image not found: ' .. tostr(img_or_name))
-    return img
+    return Pen.decode(img_or_name)
   end
 end
 
